@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quy đổi điểm V-SAT</title>
+    <style>
+        body {
+            font-family: Arial;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        input, select, button {
+            padding: 10px;
+            margin-top: 10px;
+            width: 100%;
+            font-size: 16px;
+        }
+        #ketQua {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: darkgreen;
+        }
+    </style>
+</head>
+<body>
+    <h2>Quy đổi điểm V-SAT sang điểm THPT</h2>
+
+    <label for="mon">Chọn môn học:</label>
+    <select id="mon">
+        <option value="toan">Toán</option>
+        <option value="vatly">Vật lý</option>
+	<option value="hoahoc">Hóa học</option>
+	<option value="sinhhoc">Sinh học</option>
+	<option value="lichsu">Lịch sử</option>
+	<option value="dialy">Địa lý</option>
+	<option value="tienganh">Tiếng Anh</option>
+	<option value="nguvan">Ngữ văn</option>
+    </select>
+
+    <label for="vsat">Nhập điểm V-SAT:</label>
+    <input type="number" id="vsat" step="0.1" placeholder="VD: 110.5">
+
+    <button onclick="quyDoi()">Quy đổi</button>
+
+    <div id="ketQua"></div>
+
+    <script>
+        const duLieuToan = [
+            { a: 132, b: 150, c: 8.5, d: 10.0 },
+            { a: 128.5, b: 132, c: 8.1, d: 8.5 },
+            { a: 122.5, b: 128.5, c: 7.75, d: 8.1 },
+            { a: 114.5, b: 122.5, c: 7.0, d: 7.75 },
+            { a: 108.0, b: 114.5, c: 6.6, d: 7.0 },
+            { a: 102.5, b: 108.0, c: 6.25, d: 6.6 },
+            { a: 97.0, b: 102.5, c: 6.0, d: 6.25 },
+            { a: 91.0, b: 97.0, c: 5.6, d: 6.0 },
+            { a: 85.0, b: 91.0, c: 5.25, d: 5.6 },
+            { a: 77.0, b: 85.0, c: 5.0, d: 5.25 },
+            { a: 68.0, b: 77.0, c: 4.5, d: 5.0 },
+            { a: 6.0, b: 68.0, c: 1.5, d: 4.5 }
+        ];
+
+        const duLieuVatLy = [
+            { a: 123.0, b: 147.0, c: 9.5, d: 10.0 },
+            { a: 118.5, b: 123.0, c: 9.25, d: 9.5 },
+            { a: 112.5, b: 118.5, c: 9.0, d: 9.25 },
+            { a: 105.0, b: 112.5, c: 8.5, d: 9.0 },
+            { a: 99.5, b: 105.0, c: 8.0, d: 8.5 },
+            { a: 94.5, b: 99.5, c: 7.75, d: 8.0 },
+            { a: 90.0, b: 94.5, c: 7.5, d: 7.75 },
+            { a: 85.0, b: 90.0, c: 7.25, d: 7.5 },
+            { a: 80.0, b: 85.0, c: 6.75, d: 7.25 },
+            { a: 74.0, b: 80.0, c: 6.35, d: 6.75 },
+            { a: 66.5, b: 74.0, c: 5.75, d: 6.35 },
+            { a: 17.0, b: 66.5, c: 3.05, d: 5.75 }
+        ];
+
+	const duLieuHoaHoc = [
+    	    { a: 129.0, b: 150.0, c: 9.5, d: 10.0 },
+    	    { a: 124.5, b: 129.0, c: 9.25, d: 9.5 },
+    	    { a: 117.0, b: 124.5, c: 8.75, d: 9.25 },
+    	    { a: 107.5, b: 117.0, c: 8.25, d: 8.75 },
+    	    { a: 100.5, b: 107.5, c: 7.75, d: 8.25 },
+    	    { a: 94.0,  b: 100.5, c: 7.25, d: 7.75 },
+    	    { a: 88.0,  b: 94.0,  c: 6.75, d: 7.25 },
+    	    { a: 81.5,  b: 88.0,  c: 6.25, d: 6.75 },
+    	    { a: 75.5,  b: 81.5,  c: 5.75, d: 6.25 },
+    	    { a: 68.5,  b: 75.5,  c: 5.25, d: 5.75 },
+    	    { a: 59.5,  b: 68.5,  c: 4.6,  d: 5.25 },
+    	    { a: 20.0,  b: 59.5,  c: 1.35, d: 4.6  }
+	];
+
+	const duLieuSinhHoc = [
+    	    { a: 130.5, b: 150.0, c: 9.0,  d: 9.75 },
+    	    { a: 126.5, b: 130.5, c: 8.75, d: 9.0  },
+    	    { a: 120.5, b: 126.5, c: 8.34, d: 8.75 },
+    	    { a: 112.5, b: 120.5, c: 7.85, d: 8.34 },
+    	    { a: 105.5, b: 112.5, c: 7.5,  d: 7.85 },
+    	    { a: 100.0, b: 105.5, c: 7.25, d: 7.5  },
+    	    { a: 94.5,  b: 100.0, c: 6.85, d: 7.25 },
+    	    { a: 88.5,  b: 94.5,  c: 6.5,  d: 6.85 },
+    	    { a: 82.5,  b: 88.5,  c: 6.25, d: 6.5  },
+    	    { a: 76.0,  b: 82.5,  c: 5.85, d: 6.25 },
+    	    { a: 66.5,  b: 76.0,  c: 5.25, d: 5.85 },
+    	    { a: 26.5,  b: 66.5,  c: 2.8,  d: 5.25 }
+	];
+
+	const duLieuLichSu = [
+	    { a: 133.5, b: 150.0, c: 9.75, d: 10.0 },
+    	    { a: 131.0, b: 133.5, c: 9.5,  d: 9.75 },
+    	    { a: 126.5, b: 131.0, c: 9.25, d: 9.5  },
+    	    { a: 120.5, b: 126.5, c: 9.0,  d: 9.25 },
+    	    { a: 115.0, b: 120.5, c: 8.5,  d: 9.0  },
+    	    { a: 110.0, b: 115.0, c: 8.25, d: 8.5  },
+    	    { a: 105.5, b: 110.0, c: 8.0,  d: 8.25 },
+    	    { a: 101.0, b: 105.5, c: 7.75, d: 8.0  },
+   	    { a: 95.5,  b: 101.0, c: 7.5,  d: 7.75 },
+    	    { a: 88.5,  b: 95.5,  c: 7.0,  d: 7.5  },
+    	    { a: 79.5,  b: 88.5,  c: 6.35, d: 7.0  },
+    	    { a: 36.5,  b: 79.5,  c: 2.95, d: 6.35 }
+	];
+
+	const duLieuDiaLy = [
+	    { a: 124.0, b: 141.0, c: 10.0, d: 10.0 },
+    	    { a: 120.5, b: 124.0, c: 10.0, d: 10.0 },
+    	    { a: 115.5, b: 120.5, c: 9.75, d: 10.0 },
+    	    { a: 108.5, b: 115.5, c: 9.25, d: 9.75 },
+    	    { a: 103.0, b: 108.5, c: 9.0,  d: 9.25 },
+    	    { a: 98.5,  b: 103.0, c: 8.75, d: 9.0  },
+    	    { a: 94.0,  b: 98.5,  c: 8.5,  d: 8.75 },
+    	    { a: 89.5,  b: 94.0,  c: 8.25, d: 8.5  },
+    	    { a: 84.5,  b: 89.5,  c: 7.75, d: 8.25 },
+    	    { a: 79.0,  b: 84.5,  c: 7.25, d: 7.75 },
+    	    { a: 71.0,  b: 79.0,  c: 6.5,  d: 7.25 },
+    	    { a: 31.0,  b: 71.0,  c: 3.0,  d: 6.5  }
+	];
+
+	const duLieuTiengAnh = [
+	    { a: 131.0, b: 150.0, c: 7.75, d: 9.75 },
+    	    { a: 127.5, b: 131.0, c: 7.5,  d: 7.75 },
+    	    { a: 120.5, b: 127.5, c: 7.0,  d: 7.5  },
+    	    { a: 112.0, b: 120.5, c: 6.5,  d: 7.0  },
+    	    { a: 105.0, b: 112.0, c: 6.0,  d: 6.5  },
+    	    { a: 98.5,  b: 105.0, c: 5.75, d: 6.0  },
+    	    { a: 92.0,  b: 98.5,  c: 5.5,  d: 5.75 },
+    	    { a: 85.5,  b: 92.0,  c: 5.25, d: 5.5  },
+    	    { a: 78.5,  b: 85.5,  c: 5.0,  d: 5.25 },
+    	    { a: 70.5,  b: 78.5,  c: 4.5,  d: 5.0  },
+    	    { a: 60.0,  b: 70.5,  c: 4.0,  d: 4.5  },
+    	    { a: 20.5,  b: 60.0,  c: 1.25, d: 4.0  }
+	];
+
+	const duLieuNguVan = [
+	    { a: 129.5, b: 146.0, c: 9.25, d: 9.75 },
+   	    { a: 127.5, b: 129.5, c: 9.0,  d: 9.25 },
+    	    { a: 124.0, b: 127.5, c: 9.0,  d: 9.0  },
+    	    { a: 119.5, b: 124.0, c: 8.75, d: 9.0  },
+    	    { a: 115.5, b: 119.5, c: 8.5,  d: 8.75 },
+    	    { a: 112.5, b: 115.5, c: 8.25, d: 8.5  },
+    	    { a: 109.0, b: 112.5, c: 8.0,  d: 8.25 },
+    	    { a: 106.0, b: 109.0, c: 7.75, d: 8.0  },
+    	    { a: 102.0, b: 106.0, c: 7.5,  d: 7.75 },
+    	    { a: 97.0,  b: 102.0, c: 7.25, d: 7.5  },
+    	    { a: 90.0,  b: 97.0,  c: 6.75, d: 7.25 },
+   	    { a: 5.0,   b: 90.0,  c: 3.5,  d: 6.75 }
+	];
+
+        function quyDoi() {
+            const mon = document.getElementById("mon").value;
+            const x = parseFloat(document.getElementById("vsat").value);
+            const ketQua = document.getElementById("ketQua");
+
+            if (isNaN(x)) {
+                ketQua.innerText = "Vui lòng nhập điểm V-SAT hợp lệ.";
+                return;
+            }
+
+	    let bang;
+
+	    if (mon === "toan") {
+    		bang = duLieuToan;
+	    } else if (mon === "vatly") {
+    		bang = duLieuVatLy;
+	    } else if (mon === "hoahoc") {
+    	        bang = duLieuHoaHoc;
+	    } else if (mon === "sinhhoc") {
+		bang = duLieuSinhHoc;
+	    } else if (mon === "lichsu") {
+		bang = duLieuLichSu;
+	    } else if (mon === "dialy") {
+		bang = duLieuDiaLy;
+	    } else if (mon === "tienganh") {
+		bang = duLieuTiengAnh;
+	    } else {
+		bang = duLieuNguVan;
+	    }
+
+            const khoang = bang.find(item => x > item.a && x <= item.b);
+
+            if (khoang) {
+                const { a, b, c, d } = khoang;
+                const y = c + ((x - a) / (b - a)) * (d - c);
+                ketQua.innerText = `Điểm quy đổi THPT: ${y.toFixed(2)}`;
+            } else {
+                ketQua.innerText = "Điểm V-SAT không nằm trong phạm vi quy đổi.";
+            }
+        }
+    </script>
+</body>
+</html>
